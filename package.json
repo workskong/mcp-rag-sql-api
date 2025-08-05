@@ -1,0 +1,44 @@
+{
+  "name": "mcp-rag-sql-api",
+  "version": "1.0.0",
+  "description": "Query RAG MCP Server with E5 embeddings and FAISS vector search",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "mcp-server": "node dist/index.js --mcpo",
+    "inspector": "npx @modelcontextprotocol/inspector --config .inspector.json --server mcp-rag-sql-api",
+    "dev": "nodemon dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "rag",
+    "sql",
+    "embedding",
+    "faiss",
+    "e5"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/inspector": "^0.16.2",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@xenova/transformers": "^2.17.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
+    "helmet": "^7.0.0",
+    "vectordb": "^0.4.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^20.0.0",
+    "nodemon": "^3.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "mcp-rag-sql-api": {
+      "command": "node",
+      "args": ["dist/index.js", "--mcpo"],
+      "cwd": "c:\\Users\\nothi\\Documents\\mcp-rag-sql-api2"
+    }
+  }
+}
