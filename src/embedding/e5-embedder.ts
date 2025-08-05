@@ -20,7 +20,7 @@ export class E5Embedder {
 
     constructor(options: E5EmbedderOptions = {}) {
         this.model = null;
-        this.modelName = process.env.EMBEDDING_MODEL || 'Xenova/e5-small-v2';
+        this.modelName = process.env.EMBEDDING_MODEL || 'Xenova/e5-large-v2';
         this.isInitialized = false;
         this.silent = options.silent || false;
     }
@@ -136,8 +136,8 @@ export class E5Embedder {
    * @returns {number} 임베딩 벡터의 차원
    */
   getDimension() {
-    // E5-small-v2의 임베딩 차원
-    return 384;
+    // E5-large-v2 embedding dimension
+    return 1024;
   }
 
   /**

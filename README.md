@@ -50,7 +50,7 @@
 All configuration is managed via the `.env` file. See `.env.example` for defaults and copy it to `.env` to customize.
 
 Key settings:
-- `EMBEDDING_MODEL`: Model name (default: Xenova/e5-small-v2)
+- `EMBEDDING_MODEL`: Model name (default: Xenova/e5-large-v2, 1024 dimensions)
 - `FAISS_INDEX_PATH`, `FAISS_METADATA_PATH`: Vector DB storage
 - `QUERY_DATA_PATH`: Path to SQL query data
 - `PORT`, `HOST`: Server settings

@@ -14,15 +14,44 @@ const PORT = Number(process.env.PORT) || 7979;
 const HOST = process.env.HOST || 'localhost';
 const INSPECTOR_ENABLED = process.env.INSPECTOR_ENABLED === 'true';
 // 단일 인스턴스 생성
-let queryRAG = new QueryRAG();
-let inspector = INSPECTOR_ENABLED ? new McpInspector({}, { logLevel: process.env.LOG_LEVEL || 'info' }) : null;
-let mcpTools = new McpTools(queryRAG, inspector);
+let queryRAG;
+let inspector;
+let mcpTools;
+try {
+    queryRAG = new QueryRAG();
+}
+catch (err) {
+    console.error('[MCP INIT] QueryRAG 생성 오류:', err);
+    process.exit(1);
+}
+try {
+    inspector = INSPECTOR_ENABLED ? new McpInspector({}, { logLevel: process.env.LOG_LEVEL || 'info' }) : null;
+}
+catch (err) {
+    console.error('[MCP INIT] McpInspector 생성 오류:', err);
+    process.exit(1);
+}
+try {
+    mcpTools = new McpTools(queryRAG, inspector);
+}
+catch (err) {
+    console.error('[MCP INIT] McpTools 생성 오류:', err);
+    process.exit(1);
+}
 async function initializeAll() {
-    await queryRAG.initialize();
+    try {
+        await queryRAG.initialize();
+    }
+    catch (err) {
+        console.error('[MCP INIT] QueryRAG 초기화 오류:', err);
+        process.exit(1);
+    }
 }
 async function startMcpProtocolServer() {
-    console.log = () => { };
-    console.error = (...args) => { process.stderr.write(args.join(' ') + '\n'); };
+    // Do not disable console.log; keep logs for debugging
+    // Redirect console.error to stderr for MCPO compatibility
+    const origConsoleError = console.error;
+    console.error = (...args) => { process.stderr.write(args.join(' ') + '\n'); origConsoleError(...args); };
     const server = new Server({
         name: 'mcp-rag-sql-api',
         version: '1.0.0',
@@ -33,7 +62,7 @@ async function startMcpProtocolServer() {
         }
     });
     try {
-        console.error('� Initializing standalone MCP server...');
+        console.error('🟢 Initializing standalone MCP server...');
         await initializeAll();
         console.error('🛠️ Setting up MCP tools...');
         server.setRequestHandler(ListToolsRequestSchema, async () => {
@@ -86,9 +115,17 @@ async function startMcpProtocolServer() {
         await server.connect(transport);
         console.error('🚀 MCP server running on STDIO');
         console.error('🔍 Use @modelcontextprotocol/inspector to connect');
+        // Keep process alive for MCPO STDIO
         const keepAlive = () => { };
         const interval = setInterval(keepAlive, 1000);
         process.on('exit', () => { clearInterval(interval); });
+        // Log process events for debugging
+        process.on('uncaughtException', (err) => {
+            console.error('Uncaught Exception:', err);
+        });
+        process.on('unhandledRejection', (reason, promise) => {
+            console.error('Unhandled Rejection:', reason);
+        });
         process.on('SIGINT', async () => {
             console.error('\n🛑 Shutting down MCP server...');
             await queryRAG.close();
