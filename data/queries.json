@@ -1,117 +1,117 @@
 {
   "version": "1.0",
-  "lastUpdated": "2025-08-07T02:08:00.000Z",
+  "lastUpdated": "2025-08-07T02:38:03.920Z",
   "queryCount": 10,
   "queries": [
     {
       "id": "6b6c57e6-85b1-45c5-976e-3de4619dd6fa",
-      "description": "이 쿼리는 SBOOK(예약), SFLIGHT(항공편), SCARR(항공사) 테이블을 조인하여, 특정 예약번호(BOOKID)와 승객이름(PASS_NAME), 예약이 취소되지 않은 상태(RES_STATUS), 특정 항공편(FLDATE, CARRID)에 해당하는 데이터를 추출합니다. 이를 통해 항공사명과 예약자명 정보를 확인하는 것이 목적입니다.",
-      "sqlScript": "SELECT SINGLE CARR.CARRNAME, B.PASS_NAME\n  FROM SBOOK AS B\n  JOIN SFLIGHT AS F ON B.CARRID = F.CARRID AND B.CONNID = F.CONNID AND B.FLDATE = F.FLDATE\n  JOIN SCARR AS CARR ON B.CARRID = CARR.CARRID\n WHERE B.BOOKID = @P_BOOKID\n   AND B.PASS_NAME = @P_PASS_NAME\n   AND B.RES_STATUS <> 'X'\n   AND F.FLDATE = @P_FLDATE\n   AND F.CARRID = @P_CARRID\n INTO (@L_CARRNAME, @L_PASSNAME).",
+      "description": "이 SQL 쿼리는 TM 운송오더 헤더(/SCMTMS/D_TORROT), TM 운송오더 아이템(/SCMTMS/D_TORITE), TM FLP CBO 정보(ZTLEZ_TORITM_FLP) 테이블을 조인하여, 특정 배송 정보(VBELN, POSNR)와 FLP 정보가 삭제되지 않은(ZZLVORM), TM Freight Order(TOR_CAT), TOR_TYPE이 FO01, LIFECYCLE이 취소되지 않은, 그리고 아이템 카테고리가 Product인 조건을 만족하는 데이터를 추출합니다. 이를 통해 ERP Company Code와 Sales Organization 정보를 발췌하는 것이 목적입니다.",
+      "sqlScript": "SELECT SINGLE IT~ERP_COMP_CODE, FI~ZZSBUKR\n  FROM /SCMTMS/D_TORROT AS HD JOIN /SCMTMS/D_TORITE AS IT\n    ON HD~DB_KEY = IT~PARENT_KEY\n    JOIN ZTLEZ_TORITM_FLP AS FI\n      ON FI~PARENT_KEY = IT~DB_KEY\n WHERE FI~ZZSVBLN EQ @P_VBELN\n   AND FI~ZZSVBLP EQ @P_POSNR\n   AND FI~ZZLVORM EQ @SPACE\n   AND HD~TOR_CAT EQ @/SCMTMS/IF_TOR_CONST=>SC_TOR_CATEGORY-ACTIVE\n   AND HD~TOR_TYPE EQ @LC_FO01\n   AND HD~LIFECYCLE NE @/SCMTMS/IF_TOR_STATUS_C=>SC_ROOT-LIFECYCLE-V_CANCELED\n   AND IT~ITEM_CAT EQ @/SCMTMS/IF_TOR_CONST=>SC_TOR_ITEM_CATEGORY-PRODUCT\n  INTO (@L_BUKRS, @L_SBUKR).",
       "metadata": {
-        "addedVia": "demo-convert",
-        "addedAt": "2025-08-07T02:08:00.000Z"
+        "addedVia": "mcp-tool",
+        "addedAt": "2025-08-07T01:14:13.639Z"
       },
-      "createdAt": "2025-08-07T02:08:00.000Z",
-      "updatedAt": "2025-08-07T02:08:00.000Z"
+      "createdAt": "2025-08-07T01:14:13.639Z",
+      "updatedAt": "2025-08-07T01:14:13.639Z"
     },
     {
       "id": "2046cab3-d9f4-4053-b49a-df024019ee83",
-      "description": "이 쿼리는 SFLIGHT(항공편) 테이블에서 특정 항공편번호(LT_TEMP-CONNID)와 항공사코드(CARRID)가 일치하는 항공편의 FLDATE(출발일자)를 추출합니다. 이를 통해 해당 항공편의 출발일자를 테이블 형태로 반환합니다.",
-      "sqlScript": "SELECT FLDATE\n  FROM SFLIGHT\n   FOR ALL ENTRIES IN @LT_TEMP\n  WHERE CARRID = @LT_TEMP-CARRID\n    AND CONNID = @LT_TEMP-CONNID\n  INTO TABLE @DATA(LT_FLDATE).",
+      "description": "이 SQL 쿼리는 TM 운송오더 헤더(/SCMTMS/D_TORROT) 테이블에서 특정 로딩 ID(LT_TEMP-LOADN)와 TOR_TYPE이 FO01(Loading ID)인 운송오더의 DB_KEY를 추출합니다. 이를 통해 해당 로딩 ID와 TOR_TYPE에 해당하는 운송오더의 DB_KEY를 테이블 형태로 반환하는 것이 목적입니다.",
+      "sqlScript": "SELECT DB_KEY\n  FROM /SCMTMS/D_TORROT\n   FOR ALL ENTRIES IN @LT_TEMP\n  WHERE TOR_ID = @LT_TEMP-LOADN\n    AND TOR_TYPE = @C_FO01\n  INTO TABLE @DATA(LT_DB_KEY).",
       "metadata": {
-        "addedVia": "demo-convert",
-        "addedAt": "2025-08-07T02:08:00.001Z"
+        "addedVia": "mcp-tool",
+        "addedAt": "2025-08-07T01:14:13.640Z"
       },
-      "createdAt": "2025-08-07T02:08:00.001Z",
-      "updatedAt": "2025-08-07T02:08:00.001Z"
+      "createdAt": "2025-08-07T01:14:13.640Z",
+      "updatedAt": "2025-08-07T01:14:13.640Z"
     },
     {
       "id": "e4172139-9707-4ac1-92b3-875bf1c0f4ad",
-      "description": "이 쿼리는 SBOOK(예약) 테이블에서 특정 예약번호(BOOKID)에 해당하는 예약 상세 정보를 추출합니다. 추출되는 필드에는 예약번호, 승객명, 항공사, 항공편, 등급, 예약상태 등 예약의 상세 정보가 포함됩니다.",
-      "sqlScript": "SELECT SINGLE BOOKID PASS_NAME CARRID CONNID FLDATE CLASS RES_STATUS SMOKER LUGGWEIGHT ORDER_DATE\n  FROM SBOOK\n  INTO CORRESPONDING FIELDS OF @LS_BOOK\n  WHERE BOOKID = @P_BOOKID.",
+      "description": "이 SQL 쿼리는 TM 운송오더 헤더(/SCMTMS/D_TORROT) 테이블에서 특정 DB_KEY(입력값: LS_DOCFLOW-KEY)에 해당하는 운송오더의 상세 정보를 추출합니다. 추출되는 필드에는 DB_KEY, TOR_ID, LABELTXT, TOR_CAT, TOR_TYPE, CREATED_ON, CHANGED_ON, ZZDSUBTYPE, ZZCMS_FLAG, ZZCNTR_ST, ZZCNTR_RT_UNPACK 등이 포함됩니다. 이를 통해 해당 운송오더의 상세 정보를 구조화된 데이터(LS_TOR)로 반환하는 것이 목적입니다.",
+      "sqlScript": "SELECT SINGLE DB_KEY TOR_ID LABELTXT TOR_CAT TOR_TYPE\n                CREATED_ON CHANGED_ON ZZDSUBTYPE ZZCMS_FLAG ZZCNTR_ST\n                ZZCNTR_RT_UNPACK\n  FROM /SCMTMS/D_TORROT\n  INTO CORRESPONDING FIELDS OF LS_TOR\n  WHERE DB_KEY = LS_DOCFLOW-KEY.",
       "metadata": {
-        "addedVia": "demo-convert",
-        "addedAt": "2025-08-07T02:08:00.002Z"
+        "addedVia": "mcp-tool",
+        "addedAt": "2025-08-07T01:14:13.641Z"
       },
-      "createdAt": "2025-08-07T02:08:00.002Z",
-      "updatedAt": "2025-08-07T02:08:00.002Z"
+      "createdAt": "2025-08-07T01:14:13.641Z",
+      "updatedAt": "2025-08-07T01:14:13.641Z"
     },
     {
       "id": "9f70729e-56e2-44f7-9dd2-2cfc0954586a",
-      "description": "이 쿼리는 SBOOK(예약)과 SFLIGHT(항공편) 테이블을 조인하여, 특정 항공편(CONNID)과 항공사(CARRID)에 해당하는 예약정보(예약번호, 승객명)를 추출합니다. 중복 없이 예약번호와 항공편 정보를 테이블로 반환합니다.",
-      "sqlScript": "SELECT DISTINCT B.BOOKID AS RESID, F.CONNID AS FLTID\n  FROM SBOOK AS B\n  INNER JOIN SFLIGHT AS F\n    ON B.CARRID = F.CARRID AND B.CONNID = F.CONNID AND B.FLDATE = F.FLDATE\n   FOR ALL ENTRIES IN @LT_CONN\n  WHERE F.CONNID = @LT_CONN-CONNID\n    AND F.CARRID = @LT_CONN-CARRID\n  INTO TABLE @LT_RESERV.",
+      "description": "이 SQL 쿼리는 TM 운송오더 헤더(/SCMTMS/D_TORROT)와 TM 운송오더 아이템(/SCMTMS/D_TORITE) 테이블을 조인하여, 특정 로딩 ID(TOR_ID)와 배송 정보(ZZVBELN_VL)를 추출합니다. 조인 조건은 DB_KEY와 아이템 타입(ITEM_TYPE)이 LC_PRD인 경우를 대상으로 합니다. 필터링 조건으로는 TOR_TYPE이 LC_FO01(Loading ID)이고, 배송 정보(ZZVBELN_VL)가 입력된 데이터(LT_VBELN-VBELN)와 일치하는 경우를 포함합니다. 이를 통해 중복 없이 로딩 ID와 배송 정보를 테이블 형태로 반환하는 것이 목적입니다.",
+      "sqlScript": "SELECT DISTINCT I~ZZVBELN_VL AS VLIEN,\n                H~TOR_ID AS LOADN\n  FROM /SCMTMS/D_TORROT AS H\n      INNER JOIN /SCMTMS/D_TORITE AS I\n        ON H~DB_KEY = I~PARENT_KEY AND\n           I~ITEM_TYPE = @LC_PRD\n  FOR ALL ENTRIES IN @LT_VBELN\n  WHERE H~TOR_TYPE = @LC_FO01\n    AND I~ZZVBELN_VL = @LT_VBELN-VBELN\n  INTO TABLE @LT_LOADN.",
       "metadata": {
-        "addedVia": "demo-convert",
-        "addedAt": "2025-08-07T02:08:00.003Z"
+        "addedVia": "mcp-tool",
+        "addedAt": "2025-08-07T01:14:13.642Z"
       },
-      "createdAt": "2025-08-07T02:08:00.003Z",
-      "updatedAt": "2025-08-07T02:08:00.003Z"
+      "createdAt": "2025-08-07T01:14:13.642Z",
+      "updatedAt": "2025-08-07T01:14:13.642Z"
     },
     {
       "id": "2de137b6-94c8-47f4-aadd-7294ac878d1b",
-      "description": "이 쿼리는 SBOOK(예약) 테이블에서 특정 예약번호(BOOKID)와 등급(CLASS)에 해당하는 예약의 PASS_NAME(승객명)을 추출합니다. 이를 단일 값으로 반환합니다.",
-      "sqlScript": "SELECT SINGLE PASS_NAME FROM SBOOK\n  INTO @DATA(LV_NAME)\n  WHERE BOOKID = @LS_ITEM-BOOKID\n    AND CLASS = @LS_ITEM-CLASS.",
+      "description": "이 SQL 쿼리는 TM 운송오더 헤더(/SCMTMS/D_TORROT) 테이블에서 특정 DB_KEY(입력값: ls_item_data-parent_key)와 TOR_CAT(운송오더 카테고리)가 LC_FU인 운송오더의 TOR_ID를 추출합니다. 이를 통해 해당 DB_KEY와 카테고리에 해당하는 운송오더의 TOR_ID를 단일 값으로 반환하는 것이 목적입니다.",
+      "sqlScript": "SELECT SINGLE tor_id FROM /scmtms/d_torrot\nINTO @DATA(lv_fu)\nWHERE db_key = @ls_item_data-parent_key\nAND tor_cat = @lc_fu.",
       "metadata": {
-        "addedVia": "demo-convert",
-        "addedAt": "2025-08-07T02:08:00.004Z"
+        "addedVia": "mcp-tool",
+        "addedAt": "2025-08-07T01:14:13.643Z"
       },
-      "createdAt": "2025-08-07T02:08:00.004Z",
-      "updatedAt": "2025-08-07T02:08:00.004Z"
+      "createdAt": "2025-08-07T01:14:13.643Z",
+      "updatedAt": "2025-08-07T01:14:13.643Z"
     },
     {
       "id": "4395bccb-4868-48ae-8a11-b6cb5cff1274",
-      "description": "이 쿼리는 SBOOK(예약), SFLIGHT(항공편), SCARR(항공사) 테이블을 조인하여 예약정보 중 특정 승객이름과 특정 항공편(항공사, 노선, 일자, 등등)이 일치하고 취소되지 않은 예약건의 예약번호와 항공사명을 추출합니다.",
-      "sqlScript": "SELECT DISTINCT F.CONNID AS FLTID, CARR.CARRNAME AS AIRLINE\n  FROM SBOOK AS B\n  JOIN SFLIGHT AS F ON B.CARRID = F.CARRID AND B.CONNID = F.CONNID AND B.FLDATE = F.FLDATE\n  JOIN SCARR AS CARR ON F.CARRID = CARR.CARRID\n WHERE B.PASS_NAME = @PS_PASS-NAME\n   AND F.CONNID = @PS_PASS-CONNID\n   AND B.CLASS = @PS_PASS-CLASS\n   AND B.RES_STATUS = @SPACE",
+      "description": "이 SQL 쿼리는 /SCMTMS/D_TORITE (TM 운송오더 아이템), /SCMTMS/D_TORROT (TM 운송오더 헤더), ZTLEZ_TORITM_FLP (TM FLP CBO 정보) 테이블을 조인하여 특정 데이터를 추출합니다. 추출 조건은 hd~tor_type이 'FO01'이고, hd~zzVSTEL이 특정 값(@Ps_LRK-VSTEL)과 일치하며, it1~item_type이 'Product'이고, it2~zzMFGNO가 특정 값(@Ps_LRK-LRKEY)과 일치하며, it2~zzLVORM과 it2~zzXADDI가 공백인 경우를 만족하는 데이터를 추출합니다. 이러한 조건은 특정 배송지(@Ps_LRK-VSTEL)와 제품 번호(@Ps_LRK-LRKEY)에 대한 운송오더 정보를 추출하는 것을 의미하며, it2~zzLVORM과 it2~zzXADDI가 공백인 경우는 FLP 정보가 삭제되지 않은 경우를 의미합니다. 추출된 데이터는 LOADN(hd~TOR_ID)과 VSTEL(hd~zzvstel) 필드로 구성되며, 추가적으로 @pT_LID 테이블의 필드를 포함합니다. LOADN은 운송오더 번호를 의미하며, VSTEL은 배송지를 의미합니다. 이러한 데이터는 특정 배송지와 제품 번호에 대한 운송오더 정보를 관리하고 분석하는 데 사용될 수 있습니다.",
+      "sqlScript": "SELECT DISTINCT hd~TOR_ID AS LOADN, hd~zzvstel AS VSTEL\n  APPENDING CORRESPONDING FIELDS OF TABLE @pT_LID\n  FROM /scmtms/d_torite As it1\n  JOIN /scmtms/d_torrot AS hd\n    ON it1~parent_key = hd~db_key\n  JOIN ztlez_toritm_flp AS it2\n    ON it2~parent_key = it1~db_key\n   AND it2~root_key = hd~db_key\n  WHERE hd~tor_type EQ @GC_FO01\n    AND hd~zzVSTEL EQ @Ps_LRK-VSTEL\n    AND it1~item_type EQ @GC_PRD\n    AND it2~zzMFGNO EQ @Ps_LRK-LRKEY\n    AND it2~zzLVORM EQ @SPACE\n    AND it2~zzXADDI EQ @SPACE.",
       "metadata": {
-        "addedVia": "demo-convert",
-        "addedAt": "2025-08-07T02:08:00.005Z"
+        "addedVia": "mcp-tool",
+        "addedAt": "2025-08-07T01:14:13.644Z"
       },
-      "createdAt": "2025-08-07T02:08:00.005Z",
-      "updatedAt": "2025-08-07T02:08:00.005Z"
+      "createdAt": "2025-08-07T01:14:13.644Z",
+      "updatedAt": "2025-08-07T01:14:13.644Z"
     },
     {
       "id": "0f76e641-dbc9-4d8e-8e9c-2753e03a14ba",
-      "description": "이 쿼리는 SFLIGHT(항공편)과 SBOOK(예약), SCARR(항공사) 테이블을 조인하여 특정 조건(CARRID, CONNID, FLDATE, 등등)을 만족하는 예약번호와 항공사명을 추출합니다.",
-      "sqlScript": "SELECT F.CONNID AS FLTID, F.CARRID AS AIRLINE\n  FROM SFLIGHT AS F\n   JOIN SBOOK AS B ON B.CARRID = F.CARRID AND B.CONNID = F.CONNID AND B.FLDATE = F.FLDATE\n   JOIN SCARR AS C ON F.CARRID = C.CARRID\n WHERE F.CARRID = @PV_CARRID\n   AND F.CONNID = @PV_CONNID\n   AND F.FLDATE = @PV_FLDATE\n   AND B.RES_STATUS = @SPACE\n  INTO CORRESPONDING FIELDS OF TABLE @PT_FLT.",
+      "description": "이 쿼리는 TM 운송오더 헤더(/SCMTMS/D_TORROT)와 TM FLP 헤더 정보(ZTLEZ_TORHDR_FLP)를 조인하여, 특정 조건을 만족하는 데이터를 추출합니다. 추출하는 데이터는 운송오더 ID(TOR_ID)와 배차지(VSTEL)이며, 조건으로는 TOR 카테고리가 'TO', TOR 유형이 'FO01', 라이프사이클이 취소되지 않은 경우, 트럭 시퀀스 번호(TRSQN)와 일치, FLP 정보가 삭제되지 않은 경우를 의미합니다. 결과는 내부 테이블 @PT_LID에 저장됩니다.",
+      "sqlScript": "SELECT a~tor_id\n       a~zzvstel AS vstel\n  FROM /scmtms/d_torrot AS a JOIN ztlez_torhdr_flp AS b\n    ON a~db_key EQ b~parent_key\n WHERE a~tor_cat EQ @lc_to\n   AND a~tor_type EQ @lc_fo01\n   AND a~zzvstel EQ @pv_vstel\n   AND a~lifecycle NE @lc_10\n   AND b~zztrsqn EQ @pv_trsqn\n   AND b~zzlvorm EQ @space\n  INTO CORRESPONDING FIELDS OF TABLE @pt_lid.",
       "metadata": {
-        "addedVia": "demo-convert",
-        "addedAt": "2025-08-07T02:08:00.006Z"
+        "addedVia": "mcp-tool",
+        "addedAt": "2025-08-07T01:14:13.645Z"
       },
-      "createdAt": "2025-08-07T02:08:00.006Z",
-      "updatedAt": "2025-08-07T02:08:00.006Z"
+      "createdAt": "2025-08-07T01:14:13.645Z",
+      "updatedAt": "2025-08-07T01:14:13.645Z"
     },
     {
       "id": "b9605e6f-3219-4ee3-bdf7-2cdf1a251acc",
-      "description": "이 쿼리는 SBOOK(예약), SFLIGHT(항공편) 테이블을 조인하여, 특정 승객이름과 항공편에 대한 예약 정보(예약ID, 항공편ID, 항공사명 등)를 추출합니다. 항공사명은 SCARR에서 가져옵니다. 예약이 없는 건(승객이름, 예약번호 모두 NULL)은 제외합니다.",
-      "sqlScript": "SELECT B.BOOKID, F.CONNID, CARR.CARRNAME\n  FROM SBOOK AS B\n  INNER JOIN SFLIGHT AS F ON B.CARRID = F.CARRID AND B.CONNID = F.CONNID AND B.FLDATE = F.FLDATE\n  INNER JOIN SCARR AS CARR ON B.CARRID = CARR.CARRID\n FOR ALL ENTRIES IN @LT_PASS\nWHERE B.PASS_NAME = @LT_PASS-PASS_NAME\n  AND NOT ( B.BOOKID IS INITIAL AND B.PASS_NAME IS INITIAL )\nINTO TABLE @LT_BOOKLIST.",
+      "description": "이 SQL 쿼리는 TM 운송오더 헤더(/SCMTMS/D_TORROT)와 TM 운송오더 아이템(/SCMTMS/D_TORITE) 테이블을 조인하여, 특정 배송 정보(ZZVBELN_VL)와 운송사 정보(TSPID, TSPEXECID, TSPEXEC_SCAC, TSP_SCAC)를 추출합니다. 또한, LFA1 테이블을 조인하여 운송사 이름(NAME1)을 추가합니다. 조건으로는 배송 정보가 입력된 데이터(LT_DOH-VBELN)와 운송사 정보(TSPID, ZZTNDR_TRKID)가 모두 없는 경우를 제외합니다. 이를 통해 배송 및 운송사 관련 정보를 테이블 형태로 반환하는 것이 목적입니다.",
+      "sqlScript": "SELECT  A~TSPID, A~ZZTNDR_TRKID,\n        B~ZZVBELN_VL, C~NAME1 AS TDLNR_NAME1,\n        B~ZZVBELN_VL,\n        A~TSPEXECID,\n        A~TSPEXEC_SCAC, A~TSP_SCAC\n  FROM /SCMTMS/D_TORROT AS A INNER JOIN /SCMTMS/D_TORITE AS B\n    ON A~DB_KEY = B~PARENT_KEY\n    AND A~TOR_CAT EQ @ZLEA_TO\n      INNER JOIN LFA1 AS C ON C~LIFNR EQ A~TSPID\n FOR ALL ENTRIES IN @LT_DOH\nWHERE B~ZZVBELN_VL EQ @LT_DOH-VBELN\n  AND NOT ( A~TSPID IS INITIAL AND A~ZZTNDR_TRKID IS INITIAL )\nINTO TABLE @DATA(LT_SHIP).",
       "metadata": {
-        "addedVia": "demo-convert",
-        "addedAt": "2025-08-07T02:08:00.007Z"
+        "addedVia": "mcp-tool",
+        "addedAt": "2025-08-07T01:14:13.646Z"
       },
-      "createdAt": "2025-08-07T02:08:00.007Z",
-      "updatedAt": "2025-08-07T02:08:00.007Z"
+      "createdAt": "2025-08-07T01:14:13.646Z",
+      "updatedAt": "2025-08-07T01:14:13.646Z"
     },
     {
       "id": "bee9435f-8cc0-4cc8-9273-6d11848cbfa7",
-      "description": "이 쿼리는 SBOOK(예약), SFLIGHT(항공편), SCARR(항공사) 테이블을 조인하여 특정 예약조건(항공편, 항공사, 예약상태 등)에 해당하는 예약ID와 항공사명을 추출합니다. 중복 없이 특정 조건에 대한 예약 정보를 확인할 수 있습니다.",
-      "sqlScript": "SELECT DISTINCT F.CONNID AS FLTID, CARR.CARRNAME\n  FROM SBOOK AS B\n   JOIN SFLIGHT AS F ON B.CARRID = F.CARRID AND B.CONNID = F.CONNID AND B.FLDATE = F.FLDATE\n   JOIN SCARR AS CARR ON F.CARRID = CARR.CARRID\n WHERE F.CARRID = @PS_LRK-CARRID\n  AND B.CLASS = @GC_EC\n  AND B.RES_STATUS = @SPACE",
+      "description": "/scmtms/d_torite, /scmtms/d_torrot, ztlez_toritm_flp 테이블에서 데이터를 발췌합니다. TOR_ID(로트 ID), zzvstel(배송지) 등을 추출합니다. 운송오더 아이템과 헤더의 Parent_Key와 DB_Key가 일치하고, TOR_TYPE(운송오더 유형)이 @GC_FO01인 데이터를 조회하며, 이는 포워더(Forwarder) 유형의 운송오더를 의미합니다. 또한, 배송지(zzVSTEL)가 @Ps_LRK-VSTEL인 데이터만 추출하여 특정 배송지에 대한 정보를 확인합니다. 아이템 유형(item_type)이 @GC_PRD인 데이터만 추출하여 제품(product) 관련된 아이템만 확인하며, 제조번호(zzMFGNO)가 @Ps_LRK-LRKEY인 데이터만 추출하여 특정 제조번호에 대한 정보를 확인합니다. 또한, zzLVORM과 zzXADDI가 공백(@SPACE)인 데이터만 추출하여 특정 조건을 만족하는 데이터만 확인합니다. 이로써 특정 배송지, 운송오더 유형, 제품, 제조번호 및 추가 조건에 대한 로트 정보를 확인하여 배송 및 물류 관리를 효율적으로 수행할 수 있습니다.",
+      "sqlScript": "SELECT DISTINCT hd~TOR_ID AS LOADN, hd~zzvstel AS VSTEL\n  APPENDING CORRESPONDING FIELDS OF TABLE @pT_LID\n  FROM /scmtms/d_torite As it1\n  JOIN /scmtms/d_torrot AS hd\n    ON it1~parent_key = hd~db_key\n  JOIN ztlez_toritm_flp AS it2\n    ON it2~parent_key = it1~db_key\n   AND it2~root_key = hd~db_key\n WHERE hd~tor_type EQ @GC_FO01\n   AND hd~zzVSTEL EQ @Ps_LRK-VSTEL\n   AND it1~item_type EQ @GC_PRD\n   AND it2~zzMFGNO EQ @Ps_LRK-LRKEY\n   AND it2~zzLVORM EQ @SPACE\n   AND it2~zzXADDI EQ @SPACE.",
       "metadata": {
-        "addedVia": "demo-convert",
-        "addedAt": "2025-08-07T02:08:00.008Z"
+        "addedVia": "mcp-tool",
+        "addedAt": "2025-08-07T01:14:13.647Z"
       },
-      "createdAt": "2025-08-07T02:08:00.008Z",
-      "updatedAt": "2025-08-07T02:08:00.008Z"
+      "createdAt": "2025-08-07T01:14:13.647Z",
+      "updatedAt": "2025-08-07T01:14:13.647Z"
     },
     {
       "id": "3e5afc10-7272-4cee-a586-456297aeb8bb",
-      "description": "이 쿼리는 SBOOK(예약), SFLIGHT(항공편) 테이블을 조인하여, 내부 테이블 lt_book의 예약번호, 승객명에 해당하는 예약과 항공편 정보를 추출합니다. 예약상태가 활성(예: RES_STATUS = ' ')인 데이터만 반환합니다.",
-      "sqlScript": "SELECT B.BOOKID, B.PASS_NAME, F.CONNID, F.FLDATE\n  INTO CORRESPONDING FIELDS OF TABLE lt_res\n  FROM SBOOK AS B\n   INNER JOIN SFLIGHT AS F ON B.CARRID = F.CARRID AND B.CONNID = F.CONNID AND B.FLDATE = F.FLDATE\n   FOR ALL ENTRIES IN lt_book\n WHERE B.BOOKID = lt_book-bookid\n   AND B.PASS_NAME = lt_book-pass_name\n   AND B.RES_STATUS = ' '.",
+      "description": "/scmtms/d_torrot, /scmtms/d_torite 테이블에서 데이터를 발췌합니다. TOR_ID, zzvbeln_vl(운송오더 번호), zzposnr_vl(운송오더 항목 번호) 등을 추출합니다. 운송오더 헤더와 아이템의 Parent_Key와 DB_Key가 일치하는 데이터를 조회하며, 이는 운송오더 헤더와 아이템을 연결하여 데이터를 추출하는 조건입니다.  FOR ALL ENTRIES 문을 사용하여 lt_vbeln 내부 테이블의 데이터를 참조하여, zzvbeln_vl과 zzposnr_vl이 lt_vbeln-vbeln_d와 lt_vbeln-posnr_d에 일치하는 데이터만 추출합니다. 이는 특정 운송오더 번호와 항목 번호에 대한 정보를 확인하는 조건입니다. 또한, tor_cat(운송오더 카테고리)가 /scmtms/if_tor_const=>sc_tor_category-active인 데이터만 추출하여, 활성화된 운송오더 카테고리에 대한 정보만 확인합니다. 이로써 특정 운송오더 번호, 항목 번호 및 활성화된 운송오더 카테고리에 대한 정보를 확인하여 배송 및 물류 관리를 효율적으로 수행할 수 있습니다.",
+      "sqlScript": "SELECT a~tor_id\n       b~zzvbeln_vl AS vbeln\n       b~zzposnr_vl AS posnr\n  INTO CORRESPONDING FIELDS OF TABLE lt_fo\n  FROM /scmtms/d_torrot AS a\n       INNER JOIN /scmtms/d_torite AS b\n           ON b~parent_key = a~db_key\n   FOR ALL ENTRIES IN lt_vbeln\n WHERE b~zzvbeln_vl = lt_vbeln-vbeln_d\n   AND b~zzposnr_vl = lt_vbeln-posnr_d\n   AND a~tor_cat = /scmtms/if_tor_const=>sc_tor_category-active.",
       "metadata": {
-        "addedVia": "demo-convert",
-        "addedAt": "2025-08-07T02:08:00.009Z"
+        "addedVia": "mcp-tool",
+        "addedAt": "2025-08-07T01:14:13.648Z"
       },
-      "createdAt": "2025-08-07T02:08:00.009Z",
-      "updatedAt": "2025-08-07T02:08:00.009Z"
+      "createdAt": "2025-08-07T01:14:13.648Z",
+      "updatedAt": "2025-08-07T01:14:13.648Z"
     }
   ]
 }
