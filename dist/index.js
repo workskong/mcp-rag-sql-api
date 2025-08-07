@@ -50,8 +50,7 @@ async function initializeAll() {
 async function startMcpProtocolServer() {
     // Do not disable console.log; keep logs for debugging
     // Redirect console.error to stderr for MCPO compatibility
-    const origConsoleError = console.error;
-    console.error = (...args) => { process.stderr.write(args.join(' ') + '\n'); origConsoleError(...args); };
+    console.error = (...args) => { process.stderr.write(args.join(' ') + '\n'); };
     const server = new Server({
         name: 'mcp-rag-sql-api',
         version: '1.0.0',
