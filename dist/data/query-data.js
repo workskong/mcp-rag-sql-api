@@ -95,7 +95,7 @@ export class QueryData {
      * @returns {string} 생성된 쿼리 ID
      */
     async addQuery(queryInfo) {
-        const { description, sqlScript, metadata = {} } = queryInfo;
+        const { description, sqlScript, ApplicationSource = '', Module = '', metadata = {} } = queryInfo;
         if (!description || !sqlScript) {
             throw new Error('Description and SQL script are required');
         }
@@ -104,6 +104,8 @@ export class QueryData {
             id: queryId,
             description: description.trim(),
             sqlScript: sqlScript.trim(),
+            ApplicationSource,
+            Module,
             metadata: {
                 ...metadata,
                 addedAt: new Date().toISOString()

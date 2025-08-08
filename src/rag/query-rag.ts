@@ -96,7 +96,7 @@ export class QueryRAG {
    * @param {number} topK - 반환할 결과 수
    * @returns {Promise<Array>} 유사한 쿼리 결과
    */
-  async searchSimilarQueries(naturalLanguageQuery: string, topK: number = 5): Promise<Array<{id: string; similarity: number; description: string; sqlScript: string; metadata: any;}>> {
+  async searchSimilarQueries(naturalLanguageQuery: string, topK: number = 3): Promise<Array<{id: string; similarity: number; description: string; sqlScript: string; metadata: any;}>> {
     if (!this.isInitialized) {
       throw new Error('QueryRAG not initialized. Call initialize() first.');
     }
@@ -124,6 +124,8 @@ export class QueryRAG {
           similarity: result.score,
           description: queryInfo?.description ?? '',
           sqlScript: queryInfo?.sqlScript ?? '',
+          ApplicationSource: queryInfo?.ApplicationSource ?? '',
+          Module: queryInfo?.Module ?? '',
           metadata: queryInfo?.metadata ?? {}
         };
       });

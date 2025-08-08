@@ -10,6 +10,8 @@ export interface Query {
   id: string;
   description: string;
   sqlScript: string;
+  ApplicationSource?: string;
+  Module?: string;
   metadata?: {
     category?: string;
     tags?: string[];
@@ -132,18 +134,20 @@ export class QueryData {
    * @param {object} queryInfo - 쿼리 정보
    * @returns {string} 생성된 쿼리 ID
    */
-  async addQuery(queryInfo: { description: string; sqlScript: string; metadata?: any }): Promise<string> {
-    const { description, sqlScript, metadata = {} } = queryInfo;
+  async addQuery(queryInfo: { description: string; sqlScript: string; ApplicationSource?: string; Module?: string; metadata?: any }): Promise<string> {
+    const { description, sqlScript, ApplicationSource = '', Module = '', metadata = {} } = queryInfo;
     
     if (!description || !sqlScript) {
       throw new Error('Description and SQL script are required');
     }
 
     const queryId = randomUUID();
-    const query = {
+    const query: Query = {
       id: queryId,
       description: description.trim(),
       sqlScript: sqlScript.trim(),
+      ApplicationSource,
+      Module,
       metadata: {
         ...metadata,
         addedAt: new Date().toISOString()

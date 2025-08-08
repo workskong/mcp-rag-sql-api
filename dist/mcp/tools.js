@@ -45,6 +45,10 @@ export class McpTools {
                             type: 'string',
                             description: 'Actual SQL script'
                         },
+                        ApplicationSource: {
+                            type: 'string',
+                            description: 'Source application for the query'
+                        },
                         metadata: {
                             type: 'object',
                             description: 'Additional metadata for the query',
@@ -52,11 +56,6 @@ export class McpTools {
                                 category: {
                                     type: 'string',
                                     description: 'Query category (e.g., analytics, sales, inventory)'
-                                },
-                                complexity: {
-                                    type: 'string',
-                                    enum: ['simple', 'medium', 'complex'],
-                                    description: 'Query complexity'
                                 },
                                 tables: {
                                     type: 'array',
@@ -71,7 +70,7 @@ export class McpTools {
                             }
                         }
                     },
-                    required: ['description', 'sqlScript']
+                    required: ['description', 'sqlScript', 'ApplicationSource']
                 }
             },
             {
@@ -179,6 +178,8 @@ export class McpTools {
                 similarity: Math.round(result.similarity * 100) / 100,
                 description: result.description,
                 sqlScript: result.sqlScript,
+                ApplicationSource: result.ApplicationSource || result.metadata?.ApplicationSource || '',
+                Module: result.Module || '',
                 metadata: result.metadata
             }))
         };
@@ -187,7 +188,7 @@ export class McpTools {
      * Add new query
      */
     async addQuery(args) {
-        const { description, sqlScript, metadata = {} } = args;
+        const { description, sqlScript, ApplicationSource = '', Module = '', metadata = {} } = args;
         if (!description || typeof description !== 'string' || description.trim() === '') {
             throw new Error('Valid description is required');
         }
@@ -197,6 +198,8 @@ export class McpTools {
         const queryId = await this.queryRAG.addQuery({
             description: description.trim(),
             sqlScript: sqlScript.trim(),
+            ApplicationSource,
+            Module,
             metadata: {
                 ...metadata,
                 addedVia: 'mcp-tool',
@@ -207,7 +210,9 @@ export class McpTools {
             success: true,
             queryId,
             message: 'Query successfully added to RAG system',
-            description: description.trim()
+            description: description.trim(),
+            ApplicationSource: args.ApplicationSource || '',
+            Module: args.Module || ''
         };
     }
     /**

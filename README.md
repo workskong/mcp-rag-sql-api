@@ -1,26 +1,17 @@
 
+ 
 # MCP RAG SQL API
 
-**MCP RAG SQL API** is a server application that enables natural language search for SQL queries using advanced embedding models and in-memory vector search. It is designed to boost developer productivity by allowing users to find relevant SQL queries simply by describing their needs in plain language.
+**MCP RAG SQL API** is a server application for searching and managing SQL queries using natural language.  
+It maximizes developer productivity by utilizing the E5 embedding model, in-memory vector search, and the MCP protocol.
 
-## 🚀 Features
+## 🚀 Main Features
 
-- **Natural Language Query Search**: Input queries like "monthly sales report" or "user purchase history" and receive the most relevant SQL statements.
-- **E5 Embedding Model**: Utilizes the Xenova E5 model via `@xenova/transformers` to convert natural language and SQL queries into high-dimensional vectors for accurate similarity search.
-- **FAISS-like In-Memory Vector Search**: Employs the `vectordb` package for fast, scalable vector similarity search, storing embeddings and metadata in local files.
-- **MCP Protocol Support**: Integrates Model-Context-Protocol (MCP) for flexible LLM interaction and real-time system monitoring.
-- **RESTful HTTP API**: Simple endpoints for integration with other systems.
-- **Inspector Tooling**: Real-time monitoring and control via MCP Inspector.
-
-## �️ Technology Stack
-
-- **Backend**: Node.js (ES Modules), Express.js
-- **Embeddings**: `@xenova/transformers` (E5 model)
-- **Vector Search**: `vectordb` (FAISS-like)
-- **Protocol**: `@modelcontextprotocol/sdk`, `@modelcontextprotocol/inspector`
-- **Environment Management**: `dotenv`
-- **Security & Middleware**: `helmet`, `cors`
-- **TypeScript**: Strict typing, ES2020 target
+- Natural language-based SQL query search (`search_queries`)
+- Add/Delete/View query statistics (`add_query`, `remove_query`, `get_rag_stats`)
+- E5 embedding model and FAISS-like vector search
+- MCP protocol and Inspector support
+- RESTful HTTP API provided
 
 ## 📁 Project Structure
 
@@ -37,27 +28,91 @@
 ├── data/
 │   └── queries.json
 ├── .env
-├── .env.example
 ├── .inspector.json
 ├── package.json
 ├── tsconfig.json
-├── LICENSE
 └── README.md
 ```
 
-## ⚙️ Configuration
+## ⚙️ Environment Settings
 
-All configuration is managed via the `.env` file. See `.env.example` for defaults and copy it to `.env` to customize.
-
-Key settings:
-- `EMBEDDING_MODEL`: Model name (default: Xenova/e5-large-v2, 1024 dimensions)
-- `FAISS_INDEX_PATH`, `FAISS_METADATA_PATH`: Vector DB storage
-- `QUERY_DATA_PATH`: Path to SQL query data
-- `PORT`, `HOST`: Server settings
-- `LOG_LEVEL`, `LOG_FILE`: Logging
-- `INSPECTOR_ENABLED`, `INSPECTOR_PATH`: Inspector endpoint
+- All settings are managed with the `.env` file (model, port, paths, etc.)
+- Main variables: `EMBEDDING_MODEL`, `QUERY_DATA_PATH`, `PORT`, `INSPECTOR_ENABLED`, etc.
 
 ## 🏁 Getting Started
+
+### Requirements
+
+- Node.js 18+
+- 8GB+ RAM recommended
+
+### Installation & Run
+
+```bash
+npm install
+cp .env.example .env
+# Edit the .env file
+npm run build
+npm run start
+```
+
+### Development/Production
+
+
+- Development: `npm run dev`
+- Production: `npm run build && npm run start`
+
+## 🧩 MCP Inspector and Tools
+
+- Real-time monitoring and control with MCP Inspector
+- Example MCP tool list and input schema:
+
+### search_queries
+
+```json
+{
+  "query": "Natural language to search",
+  "topK": 3
+}
+```
+
+### add_query
+
+```json
+{
+  "description": "Query description",
+  "sqlScript": "Actual SQL",
+  "ApplicationSource": "Source system",
+  "Module": "Business module",
+  "metadata": {
+    "category": "Category",
+    "tables": ["Table1", "Table2"],
+    "tags": ["Tag1", "Tag2"]
+  }
+}
+```
+
+### remove_query
+
+```json
+{
+  "queryId": "Query ID to delete"
+}
+```
+
+### get_rag_stats
+
+```json
+{}
+```
+
+## 🔒 Security
+
+- For production, set security variables such as `JWT_SECRET`, `API_KEY` in `.env`
+
+## 📜 License
+
+MIT License. See the LICENSE file for details.
 
 ### Prerequisites
 
